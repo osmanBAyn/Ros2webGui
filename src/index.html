@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UUV GUI</title>
+</head>
+<body>
+    <div class="connection_page">
+        <input type="text" id="rosBridgeAddress" placeholder="ws://localhost:...">
+        <button onclick="connectRos()">Connect</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script>
+        let ros;
+        function connectRos(){
+            const rosBridgeAddress = document.getElementById('rosBridgeAddress').value;
+            ros = new ROSLIB.Ros({
+                url : rosBridgeAddress
+            });
+            ros.on('connection', function() {
+                console.log('Connected to websocket server.');
+                setupTopics();
+            });
+            ros.on('error', function(error) {
+                console.log('Error connecting to websocket server: ', error);
+            });
+            ros.on('close', function() {
+                console.log('Connection to websocket server closed.');
+            });
+        }
+        function setupTopics(){
+            console.log('Setting up topics');
+            const myTopic = new ROSLIB.Topic({
+                ros,
+                name: "/my_topic",
+                messageType: "geometry_msgs/Twist",
+                });
+            console.log("hi");
+            myTopic.subscribe(function(message) {
+                
+                console.log('Received message on ' + message.linear.x);
+            });
+        }
+    </script>
+</body>
+</html>
